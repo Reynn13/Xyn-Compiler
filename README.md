@@ -181,210 +181,106 @@ carefully designed pipeline**:
 
 **Each stage is intentionally isolated and inspectable**.
 
-
 ---
 
-## Lexical Analysis (aka Lexer)
+### Memory Management Strategy
 
-Tokens store source indices (start & end) instead of copied strings
+> Fast allocation, cheap deallocation (bulk-free)
 
-All token text is derived lazily from the original source
+### Especially suited for:
 
-Enables:
+- AST nodes
 
-Zero-copy lexing
+- IR instructions
 
-Accurate error reporting
-
-Precise syntax highlighting
+- Temporary compiler data
 
 
-
-Special care is taken when lexing:
-
-String literals
-
-Keywords vs identifiers
-
-Error recovery
-
+**This mirrors techniques used in real compilers** (**LLVM**, **GCC**).
 
 
 ---
 
-Parsing
+## Error Reporting & Diagnostics
 
-Produces a clean Abstract Syntax Tree (AST)
+### A major focus of Xyn is high-quality diagnostics:
 
-AST nodes are lightweight and explicit
+- **Colored error output**.\
+  **Error message** colored **white**, **Error location** with **red**, and others with **green**.
 
-Syntax errors are reported with:
+- **Exact** source highlighting.\
+  Xyn's Error Engine use **span location** from **every Error class** and then display it to the screen.
 
-Source ranges
+- **Multiple severity levels**.\
+  Xyn's errors divided **line by line**, start from **one** and **so on** orderly.
 
-Colored diagnostics
-
-Human-readable explanations
-
-
-
-
----
-
-Intermediate Representation (IR)
-
-Xyn uses a three-address code–style IR inspired by real-world compilers.
-
-Example:
-
-t0 = const 12
-t1 = const 12.3
-t2 = const 11
-t3 = itof t2
-t4 = mul t1 t3
-t5 = itof t0
-t6 = add t5 t4
-store a t6
-
-Characteristics:
-
-Explicit temporaries
-
-Explicit conversions (e.g. itof)
-
-No hidden operations
+- **Clear messages** specified to aimed at **humans**, **not machines**.
 
 
-This IR serves as a bridge between high-level syntax and low-level reasoning.
+**The goal is for error messages to teach, not merely report failure**.
 
 
 ---
 
-SSA (Static Single Assignment)
+### Planned & Ongoing Work
 
-The IR is progressively transformed into SSA form:
+- **Basic Control Flow** (e.g., if and while statement)
 
-Each variable is assigned exactly once
+- **Futher optimization** on the IR.
 
-New versions are created on reassignment
+- **Dead code elimination**.
 
-Enables powerful optimizations
+- **Constant folding** & **propagation**.
+
+- **Backend design** (bytecode or native).
+
+- **Runtime model**.
+
+- **Garbage collection strategy**.
+
+- **Self-hosting** experiments (long-term).
+
+---
+
+## Inspirations & References
+
+### Xyn is inspired by:
+
+- **LLVM IR** & **SSA design**.
+
+- **JVM** and **bytecode-based architectures**.
+
+- **ML-family compiler theory** (conceptually).
+
+- **Classic compiler literature** (Dragon Book–style pipelines).
 
 
-Key concepts implemented or explored:
-
-SSA renaming
-
-Basic blocks
-
-Control-flow graph (CFG)
-
-Φ (phi) nodes for merging control flow
-
-
-SSA is treated not as magic, but as a mechanical transformation of IR.
+**While inspired by many systems, Xyn deliberately avoids copying any single one**.
 
 
 ---
 
-Memory Management Strategy
+## Contribution & Collaboration
 
-Uses arena allocators internally
+### This project is open to critique, discussion, and collaboration.
 
-Fast allocation, cheap deallocation (bulk-free)
+### Design criticism is welcome.
 
-Especially suited for:
+### Alternative approaches are encouraged.
 
-AST nodes
-
-IR instructions
-
-Temporary compiler data
+### Discussions about trade-offs are valued.
 
 
+### If you are interested in:
 
-This mirrors techniques used in real compilers (LLVM, GCC).
+- **Compiler design**.
 
+- **Programming language theory**.
 
----
-
-Error Reporting & Diagnostics
-
-A major focus of Xyn is high-quality diagnostics:
-
-Colored error output
-
-Exact source highlighting
-
-Multiple severity levels
-
-Clear messages aimed at humans, not machines
+- **IR** / **SSA** / **optimizations**.
 
 
-The goal is for error messages to teach, not merely report failure.
-
-
----
-
-Planned & Ongoing Work
-
-Control-flow–aware optimizations
-
-Dead code elimination
-
-Constant folding & propagation
-
-Backend design (bytecode or native)
-
-Runtime model
-
-Garbage collection strategy
-
-Self-hosting experiments (long-term)
-
-
-
----
-
-Inspirations & References
-
-Xyn is inspired by:
-
-LLVM IR & SSA design
-
-JVM and bytecode-based architectures
-
-ML-family compiler theory (conceptually)
-
-Classic compiler literature (Dragon Book–style pipelines)
-
-
-While inspired by many systems, Xyn deliberately avoids copying any single one.
-
-
----
-
-Contribution & Collaboration
-
-This project is open to critique, discussion, and collaboration.
-
-Design criticism is welcome
-
-Alternative approaches are encouraged
-
-Discussions about trade-offs are valued
-
-
-If you are interested in:
-
-Compiler design
-
-Programming language theory
-
-IR / SSA / optimizations
-
-
-Feel free to open issues, propose changes, or start discussions.
+**Feel free to open issues, propose changes, or start discussions**.
 
 
 ---
