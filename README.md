@@ -1,5 +1,7 @@
 
-## Xyn Compiler
+# Xyn Compiler
+
+## Introduction
 
 Xyn is an **experimental**, **self-designed programming language** 
 and compiler project focused on ***clarity***, ***control***, 
@@ -20,10 +22,30 @@ Xyn compiler.
 
 ## Preview
 
+### Basic Types
+
+#### There are **5 basic types** in Xyn, and **2 condition** that can be applied to all type.
+
+- The **five basic types** in Xyn are **str** (string), **int** (integer), **float** (decimal numbers), **char** (character), and **bool** (boolean).\
+  These types on **default** cannot be a **null**. But, **what is a** ***null***?
+
+- A **null** is a condition where in case of variable, that variable **holds a state** where it's value was **nothing or void**.\
+  But on case of **literal values**, **null** means a value of **nothing or void** that have **no real meaning**.\
+  You **can't do operation** with it **nor use it in your program**.
+
+- So to prevent that, Xyn's **on default not allowed** a value to be a **nullable**.\
+  But at some point, void can show up from **hardware** or **program's** state randomly. Making a value **must be a nullable** to accept that void.
+  
+- For that problem, Xyn then use the same idea from **C# nullability**. On default, types cannot be nullable.\
+  But with "**?**" **operator**, it states that the types **can be nullable**.
+
+
+### Type Inference and Static Typing
+
 Xyn provides **type inference** for statement declarations such as **variables**, **functions**, and more.  
 Xyn also supports **static typing**, which offers its own advantages compared to **type inference**.
 
-### Benefits of Type Inference
+#### Benefits of Type Inference
 
 - **Shorter and less boilerplate** declarations for **long** and **repetitive** types.  
   Write **what matters**, not **redundant** information  
@@ -81,7 +103,7 @@ Xyn **fully supports** static typing, enhanced with **additional syntactic sugar
 - **Simpler** and **faster** runtime **execution**.\
   Since types are **fully known** at **compile time**, the runtime can **be simpler**, **more predictable**, and **more optimized** without ***dynamic dispatch*** or        other ***complex runtime mechanisms***.
   
-## Examples
+### Examples
 ```rs
 // before
 let john: Person = new Person("John");
@@ -104,6 +126,7 @@ let name = null; // unknown type
 let name: str? = null; // nullable string
 name = "John";
 ```
+
 ---
 
 ## Project Goals
@@ -187,7 +210,7 @@ carefully designed pipeline**:
 
 > Fast allocation, cheap deallocation (bulk-free)
 
-### Especially suited for:
+#### Especially suited for:
 
 - AST nodes
 
@@ -262,16 +285,16 @@ carefully designed pipeline**:
 
 ## Contribution & Collaboration
 
-### This project is open to critique, discussion, and collaboration.
+#### This project is open to critique, discussion, and collaboration.
 
-### Design criticism is welcome.
+#### Design criticism is welcome.
 
-### Alternative approaches are encouraged.
+#### Alternative approaches are encouraged.
 
-### Discussions about trade-offs are valued.
+#### Discussions about trade-offs are valued.
 
 
-### If you are interested in:
+#### If you are interested in:
 
 - **Compiler design**.
 
