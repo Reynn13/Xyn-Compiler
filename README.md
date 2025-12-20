@@ -294,6 +294,8 @@ carefully designed pipeline**:
 
 - **Classic compiler literature** (Dragon Book–style pipelines).
 
+- And some features from other programming languages.
+
 
 **While inspired by many systems, Xyn deliberately avoids copying any single one**.
 
