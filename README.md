@@ -18,8 +18,92 @@ Xyn compiler.
 > It is a **learning-driven** and **research-oriented project** 
 > that prioritizes understanding how compilers really work.
 
+## Preview
+
+Xyn provides **type inference** for statement declarations such as **variables**, **functions**, and more.  
+Xyn also supports **static typing**, which offers its own advantages compared to **type inference**.
+
+### Benefits of Type Inference
+
+- **Shorter and less boilerplate** declarations for **long** and **repetitive** types.  
+  Write **what matters**, not **redundant** information  
+  (e.g. *SystemInformerInterface*, *List<Map<Str, Set<Integer>>>*, etc.).
+
+- **Improved local reasoning**.  
+  Code becomes easier to read from top to bottom without **mentally parsing** explicit type declarations.  
+  Especially powerful for **expressions**, **closures / lambdas**, and **temporary values**.
+
+- **Safer and faster refactoring**.  
+  Changing a single definition is easier when types are inferred, because the compiler **automatically propagates type changes**.
+
+- Enables powerful **abstractions**.  
+  Type inference makes **generics**, **pattern matching**, and other advanced features much easier to write without *explicitly* specifying type parameters.
+
+### Examples
+
+```rs
+// before
+let list: List<Integer?> = new List<Integer?>();
+
+// after (note: `int` is lowered to `Integer` by the compiler)
+let list = new List<int?>();
 
 
+// before
+let type: enumType = enumType.A;
+
+// after
+let type = enumType.A;
+
+
+// before
+func put(x: List<Integer>, y: int) -> List<Integer> {
+  x.add(y);
+  return x;
+}
+
+// after
+func put(x: List<int>, y: int) {
+  x.add(y);
+  return x;
+}
+```
+The examples above demonstrate how type inference works in Xyn.
+However, some developers prefer **explicit static typing** for **clarity** and **intent**.
+Xyn **fully supports** static typing, enhanced with **additional syntactic sugar** to keep code ***concise*** and ***expressive***.
+### Benefits of Static Typing:
+
+- Extra **clarity** and **safety**.\
+  These are especially important in large projects with **multiple contributors**, where developers **cannot always infer** each other’s **intentions**. Explicit types      serve as a **clear contract** and **documentation** for shared code. Bugs and errors are caught earlier, before the program runs.
+
+- With **static typing**, the compiler can detect **invalid type usage** at **compile time**.
+
+- **Simpler** and **faster** runtime **execution**.\
+  Since types are **fully known** at **compile time**, the runtime can **be simpler**, **more predictable**, and **more optimized** without ***dynamic dispatch*** or        other ***complex runtime mechanisms***.
+  
+## Examples
+```rs
+// before
+let john: Person = new Person("John");
+
+// after
+let john: Person("John");
+
+
+// before
+let personJob: JobType = JobType.None;
+
+// after
+let personJob: JobType = None; // resolved to JobType.None at compile time
+
+
+// before
+let name = null; // unknown type
+
+// after
+let name: str? = null; // nullable string
+name = "John";
+```
 ---
 
 ## Project Goals
