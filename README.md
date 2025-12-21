@@ -39,6 +39,26 @@ Xyn compiler.
 - For that problem, Xyn then use the same idea from **C# nullability**. On default, types cannot be nullable.\
   But with "**?**" **operator**, it states that the types **can be nullable**.
 
+### Examples:
+```rs
+
+let age: int = 12;
+// this is not allowed because `age` is not nullable
+age = null;
+
+// but this is allowed
+let name: str? = "John";
+name = null;
+
+let johnMoney: float = 200f;
+let bank: List<float> = new List<float>();
+// this is allowed because `bank` is a list of not nullable float
+bank.add(johnMoney);
+// so you can't write this
+bank.add(null);
+
+
+```
 
 ### Type Inference and Static Typing
 
@@ -269,15 +289,18 @@ carefully designed pipeline**:
 > Disclaimer: **Feature or technical stuff maybe appear not as the expected version**.
 
 #### Feature:
-**[for version 0.04]**
+**[for version 0.05]**
 - **Simple control flow statement** (e.g., if and else statement).
 
 #### Technical:
 **[for version 0.02]**
-- **Completing the IR Pass and makes the optimization works**.
-- **Make a LIR (Low IR) Generator that generate VM-ready instruction from the HIR**.
+- **Completing the HIR Pass and makes the optimization works**.
+- **Clean the HIR code and make it more modular**
 
 **[for version 0.03]**
+- **Make a LIR (Low IR) Generator that generate VM-ready instruction from the HIR**.
+
+**[for version 0.04]**
 - **Make a LIR storer that will store the LIR code into a .xir file**
 - **Make a VM that used the LIR and execute it**.
 ---
