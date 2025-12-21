@@ -5,12 +5,9 @@ import parser.Ast.AstNode;
 import parser.Ast.exprs.literals.FloatLiteral;
 import parser.Ast.exprs.literals.IntLiteral;
 import parser.Ast.exprs.literals.StringLiteral;
+import parser.Ast.exprs.literals.VarRef;
 
-public sealed class Expr extends AstNode permits BinaryExpr,
-                                                 UnaryExpr,
-                                                 IntLiteral,
-                                                 FloatLiteral,
-                                                 StringLiteral
+public sealed class Expr extends AstNode permits BinaryExpr, UnaryExpr, FloatLiteral, IntLiteral, StringLiteral, VarRef
 {
     public BuiltinType type;
 

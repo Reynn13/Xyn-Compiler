@@ -11,6 +11,7 @@ import parser.Ast.exprs.UnaryExpr;
 import parser.Ast.exprs.literals.FloatLiteral;
 import parser.Ast.exprs.literals.IntLiteral;
 import parser.Ast.exprs.literals.StringLiteral;
+import parser.Ast.exprs.literals.VarRef;
 import parser.Ast.statements.Block;
 import parser.Ast.statements.decls.VarDecl;
 
@@ -69,6 +70,9 @@ public final class Parser {
                 case Minus:
                     AstNode e = Expr(3);
                     return new UnaryExpr(e, t.startIdx, e.endIdx, t.startCol, e.endCol, t.line);
+
+                case Ident:
+                    return new VarRef(t.startIdx, t.endIdx, t.startCol, t.endCol, t.line);
 
                 case Lparen:
                     AstNode expr = Expr(0);

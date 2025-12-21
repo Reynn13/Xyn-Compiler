@@ -6,6 +6,7 @@ import parser.Ast.AstNode;
 import parser.Ast.exprs.BinaryExpr;
 import parser.Ast.exprs.Expr;
 import parser.Ast.exprs.UnaryExpr;
+import parser.Ast.exprs.literals.VarRef;
 import parser.Ast.statements.decls.VarDecl;
 import symboltables.Symbol;
 import symboltables.SymbolType;
@@ -48,11 +49,19 @@ final class IRPass {
             case 'c':
                 // skipping "const "
                 idx += 6;
+                if (chars[idx] == '-') {
+                    s.append(chars[idx++]);
+                }
                 if (isDigit(chars[idx])) {
                     while (isDigit(chars[idx])) {
                         s.append(chars[idx++]);
                     }
                     reg.put(i, s.toString());
+                } else { // var
+                    while (chars[idx] != '\n') {
+                        s.append(chars[idx++]);
+                    }
+                    reg.put(i, var.get(s.toString()));
                 }
                 break;
 
@@ -167,12 +176,19 @@ final class IRPass {
         s.setLength(0);
         // skipping the " "
         ++idx;
+        // skip
+        if (isDigit(chars[idx])) {
+            while (chars[idx] != '\n') {
+                ++idx;
+            }
+            ++idx;
+            return;
+        }
         if (chars[idx] == 't') {
             ++idx; // skipping the t
             while (isDigit(chars[idx])) {
                 s.append(chars[idx++]);
             }
-            ++idx; // skipping the new line
             final int r = Integer.parseInt(s.toString());
 
             if (afterOperation) {
@@ -181,7 +197,7 @@ final class IRPass {
                 sb.append(st).append(' ').append(reg.get(r)).append('\n');
             }
             // skip the "store "
-            var.put(st.substring(5), reg.get(r));
+            var.put(st.substring(6), reg.get(r));
         } else {
             while (chars[idx] != '\n') {
                 s.append(chars[idx++]);
@@ -190,7 +206,7 @@ final class IRPass {
             final String r = s.toString();
             sb.append(st).append(' ').append(var.get(r)).append('\n');
             // skip the "store "
-            var.put(st.substring(5), var.get(r));
+            var.put(st.substring(6), var.get(r));
         }
         ++idx; // skipping the new line
         s.setLength(0);
@@ -198,12 +214,13 @@ final class IRPass {
 
     public String optimize() {
         onePass();
+        IO.println("\n- first pass:");
         IO.println(sb.toString());
         chars = sb.toString().toCharArray();
         sb = new StringBuilder();
 
         onePass();
-
+        IO.println("\n- second pass:");
         return sb.toString();
     }
 
@@ -211,7 +228,6 @@ final class IRPass {
         boolean hasImprovement = true;
         idx = 0;
         reg.clear();
-        var.clear();
 
         while (hasImprovement) {
             hasImprovement = false;
@@ -240,7 +256,7 @@ final class IRPass {
 
 }
 
-public final class IRGen {
+public final class  IRGen {
     private final StringBuilder sb = new StringBuilder(1000);
 
     // borrowing for a sec, sorry ErrorEngine
@@ -262,6 +278,7 @@ public final class IRGen {
         int left = counter-1;
         evalExpr(bin.right);
         int right = counter-1;
+
         if ((reg.get(left) == BuiltinType.Integer && reg.get(right) == BuiltinType.Float) || (reg.get(right) == BuiltinType.Integer && reg.get(left) == BuiltinType.Float)) {
             sb.append('t').append(counter++).append(" = itof t").append((reg.get(left) == BuiltinType.Integer) ? left : right).append('\n');
             if (reg.get(left) == BuiltinType.Integer) {
@@ -297,7 +314,7 @@ public final class IRGen {
             evalExpr(u.expr);
             return;
         }
-        if (value instanceof Expr e) {
+         if (value instanceof Expr e) {
             reg.put(counter, e.type);
             sb.append('t').append(counter++).append(" = const ").append(source, value.startIdx, value.endIdx).append('\n');
             return;
@@ -309,7 +326,8 @@ public final class IRGen {
         AstNode val = var.value;
         evalExpr(val);
         int v = counter-1;
-        if (var.varType != BuiltinType.Inferred && var.varType != reg.get(v)) {
+
+        if (var.varType != BuiltinType.Inferred && reg.get(v) != BuiltinType.VarRef && var.varType != reg.get(v)) {
             sb.append('t').append(counter++).append(" = ").append(
                     switch (reg.get(v)) {
                         case Integer -> "ito";
@@ -338,7 +356,7 @@ public final class IRGen {
                     break;
             }
         }
-        IO.println(sb.toString());
+        IO.println("\n- zero pass:\n" + sb.toString());
         return new IRPass(sb.toString().toCharArray()).optimize();
     }
 }

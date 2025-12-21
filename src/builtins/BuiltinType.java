@@ -5,6 +5,8 @@ public enum BuiltinType {
     Integer,
     String,
 
+    VarRef,
+
     // type will be inferred by the compiler
     Inferred
 }

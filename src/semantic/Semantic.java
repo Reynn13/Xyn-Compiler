@@ -8,6 +8,7 @@ import parser.Ast.AstNode;
 import parser.Ast.exprs.BinaryExpr;
 import parser.Ast.exprs.Expr;
 import parser.Ast.exprs.UnaryExpr;
+import parser.Ast.exprs.literals.VarRef;
 import parser.Ast.statements.Block;
 import parser.Ast.statements.Statement;
 import parser.Ast.statements.decls.VarDecl;
@@ -28,7 +29,12 @@ public final class Semantic {
     }
 
     private BuiltinType getType(AstNode v) {
-        return (v instanceof BinaryExpr b) ? getType(b.left) : ((Expr)v).type;
+        return (v instanceof BinaryExpr b) ? getType(b.left) : (v instanceof VarRef var) ?
+                (
+                        (Variable)global.symbolTable.get(SymbolType.var).get("a")
+                ).type
+                :
+                ((Expr)v).type;
     }
     private void checkAddition(AstNode l, AstNode r) {
         BuiltinType lt = getType(l);
@@ -195,6 +201,7 @@ public final class Semantic {
         if (expr instanceof UnaryExpr u) {
             checkExpr(u.expr);
         }
+        // if var instanceof VarRef, you don't need to check the value again
         if (expr instanceof Expr) {
             return;
         }
@@ -209,7 +216,7 @@ public final class Semantic {
 
     private void checkDecl(VarDecl var) {
         BuiltinType type = checkAndGetType(var.value);
-        if ((var.varType == BuiltinType.Inferred) || (var.varType == BuiltinType.Integer && type == BuiltinType.Float) || (var.varType == BuiltinType.Float && type == BuiltinType.Integer)) {
+        if ((var.varType == BuiltinType.Inferred) || (var.varType == type) || (var.varType == BuiltinType.Integer && type == BuiltinType.Float) || (var.varType == BuiltinType.Float && type == BuiltinType.Integer)) {
             global.symbolTable.get(SymbolType.var).put(ErrorEngine.source.substring(var.startIdx, var.endIdx), new Variable(var.isDynamic, type, var.value));
             return;
         }
