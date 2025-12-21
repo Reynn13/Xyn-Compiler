@@ -16,13 +16,15 @@ import java.util.HashMap;
 
 // optimization class for IR
 final class IRPass {
-    private boolean improvement = false;
-    private final StringBuilder sb = new StringBuilder(500);
+    private boolean afterOperation = false;
+    private StringBuilder sb = new StringBuilder(500);
+    private final StringBuilder s = new StringBuilder(500);
     private int idx = 0;
-    private final char[] chars;
+    private char[] chars;
 
-    private final HashMap<Integer, Pair<BuiltinType, Object>> var = new HashMap<>();
-    private int counter = 0;
+
+    private final HashMap<Integer, String> reg = new HashMap<>();
+    private final HashMap<String, String> var = new HashMap<>();
 
     public IRPass(char[] c) {
         chars = c;
@@ -32,67 +34,210 @@ final class IRPass {
         return c >= '0' && c <= '9';
     }
 
-    private void handleVar() {
-        final StringBuilder sb = new StringBuilder();
+    private void handleTempVar() {
+        // skipping "t"
+        ++idx;
         while (isDigit(chars[idx])) {
-            sb.append(chars[idx]);
+            s.append(chars[idx++]);
         }
-        final int varIdx = Integer.parseInt(sb.toString());
-        ++counter;
-        sb.setLength(0);
-        // skipping " = "
-        idx += 3;
+        final int i = Integer.parseInt(s.toString());
+        s.setLength(0);
+        idx += 3; // skipping " = "
         switch (chars[idx]) {
             // const
-            case 'c': {
+            case 'c':
                 // skipping "const "
                 idx += 6;
-                // Integer value
                 if (isDigit(chars[idx])) {
                     while (isDigit(chars[idx])) {
-                        sb.append(chars[idx]);
+                        s.append(chars[idx++]);
                     }
-                    var.put(varIdx, new Pair<>(BuiltinType.Integer, Integer.parseInt(sb.toString())));
-                    // skipping the newline
+                    reg.put(i, s.toString());
+                }
+                break;
+
+            // mul
+            case 'm': {
+                final int v0 = getV0(i);
+                // second argument
+                if (chars[idx] == 't') {
                     ++idx;
+                    while (isDigit(chars[idx])) {
+                        s.append(chars[idx++]);
+                    }
+
+
+                    // the first argument is temp var
+                    if (v0 >= 0) {
+                        final String l = reg.get(v0);
+                        final String r = reg.get(Integer.parseInt(s.toString()));
+                        final String v = String.valueOf(
+                                Integer.parseInt(l) * Integer.parseInt(r)
+                        );
+
+                        reg.put(i, v);
+                        sb.append(v).append('\n');
+                    }
                 }
                 break;
             }
-            case 'f':
-            case 'i':
-                if (chars[idx+1] == 't' && chars[idx+2] == 'o') {
-                    idx += 2;
-                    char toType = chars[idx];
-                    idx += 2;
-                    if (chars[idx] == 't') {
-                        ++idx;
-                        while (isDigit(chars[idx])) {
-                            sb.append(chars[idx]);
-                        }
-                        final int b = Integer.parseInt(sb.toString());
-                        var.replace(b, new Pair<>(
-                                (toType == 'i') ? BuiltinType.Integer : BuiltinType.Float,
-                                (toType == 'i') ?
-                                        Integer.parseInt(String.valueOf(var.get(b).right()))
-                                        :
-                                        Float.parseFloat(String.valueOf(var.get(b).right()))
+            // sub
+            case 's': {
+                final int v0 = getV0(i);
+                // second argument
+                if (chars[idx] == 't') {
+                    ++idx;
+                    while (isDigit(chars[idx])) {
+                        s.append(chars[idx++]);
+                    }
 
-                        ));
+
+                    // the first argument is temp var
+                    if (v0 >= 0) {
+                        final String l = reg.get(v0);
+                        final String r = reg.get(Integer.parseInt(s.toString()));
+                        final String v = String.valueOf(
+                                Integer.parseInt(l) - Integer.parseInt(r)
+                        );
+
+                        reg.put(i, v);
+                        sb.append(v).append('\n');
                     }
                 }
-        }
+                break;
+            }
+            // add
+            case 'a': {
+                final int v0 = getV0(i);
+                // second argument
+                if (chars[idx] == 't') {
+                    ++idx;
+                    while (isDigit(chars[idx])) {
+                        s.append(chars[idx++]);
+                    }
 
+
+                    // the first argument is temp var
+                    if (v0 >= 0) {
+                        final String l = reg.get(v0);
+                        final String r = reg.get(Integer.parseInt(s.toString()));
+                        final String v = String.valueOf(
+                                Integer.parseInt(l) + Integer.parseInt(r)
+                        );
+
+                        reg.put(i, v);
+                        sb.append(v).append('\n');
+                    }
+                }
+                break;
+            }
+        }
+        ++idx; // skip the newline
+        s.setLength(0);
     }
 
-    public void pass() {
+    private int getV0(int i) {
+        afterOperation = true;
+        // skip the "add "
+        idx += 4;
+        sb.append('t').append(i).append(" = const ");
+        int v0 = -1;
+        // first argument
         if (chars[idx] == 't') {
             ++idx;
-            handleVar();
+            while (isDigit(chars[idx])) {
+                s.append(chars[idx++]);
+            }
+            ++idx; // skip the space
+            v0 = Integer.parseInt(s.toString());
+        }
+        s.setLength(0);
+        return v0;
+    }
+
+    private void handleVar() {
+        // skipping the "store "
+        idx += 6;
+        s.append("store ");
+        // skipping the varname
+        while (chars[idx] != ' ') {
+            s.append(chars[idx++]);
+        }
+        final String st = s.toString();
+        s.setLength(0);
+        // skipping the " "
+        ++idx;
+        if (chars[idx] == 't') {
+            ++idx; // skipping the t
+            while (isDigit(chars[idx])) {
+                s.append(chars[idx++]);
+            }
+            ++idx; // skipping the new line
+            final int r = Integer.parseInt(s.toString());
+
+            if (afterOperation) {
+                sb.append(st).append(' ').append('t').append(r).append('\n');
+            } else {
+                sb.append(st).append(' ').append(reg.get(r)).append('\n');
+            }
+            // skip the "store "
+            var.put(st.substring(5), reg.get(r));
+        } else {
+            while (chars[idx] != '\n') {
+                s.append(chars[idx++]);
+            }
+
+            final String r = s.toString();
+            sb.append(st).append(' ').append(var.get(r)).append('\n');
+            // skip the "store "
+            var.put(st.substring(5), var.get(r));
+        }
+        ++idx; // skipping the new line
+        s.setLength(0);
+    }
+
+    public String optimize() {
+        onePass();
+        IO.println(sb.toString());
+        chars = sb.toString().toCharArray();
+        sb = new StringBuilder();
+
+        onePass();
+
+        return sb.toString();
+    }
+
+    private void onePass() {
+        boolean hasImprovement = true;
+        idx = 0;
+        reg.clear();
+        var.clear();
+
+        while (hasImprovement) {
+            hasImprovement = false;
+
+            if (idx >= chars.length) break;
+
+            if (chars[idx] == '\n') {
+                hasImprovement = true;
+                ++idx;
+                continue;
+            }
+            // temp var
+            if (chars[idx] == 't') {
+                handleTempVar();
+                hasImprovement = true;
+            }
+            // permanent var
+            if (chars[idx] == 's') {
+                handleVar();
+                hasImprovement = true;
+            }
+
+            afterOperation = false;
         }
     }
-    public boolean hasNewImprovement() {
-        return improvement && !(improvement = false);
-    }
+
 }
 
 public final class IRGen {
@@ -182,17 +327,18 @@ public final class IRGen {
         sb.append("store ").append(source, var.startIdx, var.endIdx).append(' ').append('t').append(counter-1).append('\n');
     }
 
-    public void generate() {
+    public String generate() {
         int elm = 0;
         while (elm < length) {
             switch (statements[elm++]) {
                 case VarDecl v:
                     generateDecl(v);
-                    IO.println(sb.toString());
                     break;
                 default:
                     break;
             }
         }
+        IO.println(sb.toString());
+        return new IRPass(sb.toString().toCharArray()).optimize();
     }
 }

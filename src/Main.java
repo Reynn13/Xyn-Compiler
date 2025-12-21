@@ -12,13 +12,13 @@ void main() {
 //        sb.append("let a").append(i).append(" = ").append(i).append(';');
 //    }
 
-    Lexer lexer = new Lexer("let a: str = \"Hello \" + \"world!\";");
+    Lexer lexer = new Lexer("let a: str = 123 - 44 * 2 + 1 - 12 * 3;");
     long t0 = System.nanoTime();
     Parser parser = new Parser(lexer.lex(), lexer.idx);
     Block g = parser.parse();
     new Semantic(g, parser.idx).check();
     IRGen irGenerator = new IRGen(g.statements, g.symbolTable, parser.idx);
-    irGenerator.generate();
+    IO.println(irGenerator.generate());
     long t1 = System.nanoTime();
 
     System.out.println((t1 - t0) / 1_000_000 + " ms");
