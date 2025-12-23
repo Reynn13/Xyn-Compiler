@@ -290,19 +290,19 @@ carefully designed pipeline**:
 
 #### Feature:
 **[for version 0.05]**
-- **Simple control flow statement** (e.g., if and else statement).
+- **Simple control flow statement** (e.g., if and else statement). [ ]
 
 #### Technical:
 **[for version 0.02]**
-- **Completing the HIR Pass and makes the optimization works**.
-- **Clean the HIR code and make it more modular**
+- **Completing the HIR Pass and makes the optimization works**. [X]
+- **Clean the HIR code and make it more modular**. [X]
 
 **[for version 0.03]**
-- **Make a LIR (Low IR) Generator that generate VM-ready instruction from the HIR**.
+- **Make a LIR (Low IR) Generator that generate VM-ready instruction from the HIR**. [ ]
 
 **[for version 0.04]**
-- **Make a LIR storer that will store the LIR code into a .xir file**
-- **Make a VM that used the LIR and execute it**.
+- **Make a LIR storer that will store the LIR code into a .xir file** [ ]
+- **Make a VM that used the LIR and execute it**. [ ]
 ---
 
 ## Inspirations & References
