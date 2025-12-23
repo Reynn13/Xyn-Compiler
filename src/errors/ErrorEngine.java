@@ -75,7 +75,7 @@ public final class ErrorEngine {
 
     private static String highlight(String m, int si, int len) {
         final String substring = m.substring(si, si + len);
-        return  (m.length() > (30 + len)) ?
+        return  (m.length() > (50 + len)) ?
                 "..." +
                 "\u001B[1;92m" +
                 m.substring(Math.max(si - 10, si), si) +
