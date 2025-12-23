@@ -298,7 +298,7 @@ carefully designed pipeline**:
 - **Clean the HIR code and make it more modular**. [X]
 
 **[for version 0.03]**
-- **Make a LIR (Low IR) Generator that generate VM-ready instruction from the HIR**. [ ]
+- **Make a LIR (Low IR) Generator that generate VM-ready instruction from the HIR**. [X]
 
 **[for version 0.04]**
 - **Make a LIR storer that will store the LIR code into a .xir file** [ ]
