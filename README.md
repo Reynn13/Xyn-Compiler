@@ -3,8 +3,8 @@
 
 ## Chapters
 
-1. [Overview](Overview)
-2. [Variables](variables)
+1. [Overview](#overview)
+2. [Variables](#variables)
 
 ## Overview
 
@@ -28,10 +28,10 @@ Xyn compiler.
 ## Variables
 
 ### Sections:
-- [Basic Types in Xyn](basic-types)
-- [Example 0](example-0)
-- [Nullability](nullability)
-- [Static or Dynamic?](static--dynamic-variable-in-xyn)
+- [Basic Types in Xyn](#basic-types)
+- [Example 0](#example-0)
+- [Nullability](#nullability)
+- [Static or Dynamic?](#static--dynamic-variable-in-xyn)
   
 ### Basic Types
 
