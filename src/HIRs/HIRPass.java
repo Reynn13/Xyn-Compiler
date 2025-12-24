@@ -78,6 +78,43 @@ public final class HIRPass {
         return v0;
     }
 
+    private String parseAdd(String left, String right) {
+        if (!left.contains(".")) {
+            if (!right.contains(".")) {
+                return String.valueOf(Integer.parseInt(left) + Integer.parseInt(right));
+            }
+            return String.valueOf(Integer.parseInt(left) + Float.parseFloat(right));
+        }
+        return String.valueOf(Float.parseFloat(left) + Float.parseFloat(right));
+    }
+    private String parseSub(String left, String right) {
+        if (!left.contains(".")) {
+            if (!right.contains(".")) {
+                return String.valueOf(Integer.parseInt(left) - Integer.parseInt(right));
+            }
+            return String.valueOf(Integer.parseInt(left) - Float.parseFloat(right));
+        }
+        return String.valueOf(Float.parseFloat(left) - Float.parseFloat(right));
+    }
+    private String parseMul(String left, String right) {
+        if (!left.contains(".")) {
+            if (!right.contains(".")) {
+                return String.valueOf(Integer.parseInt(left) * Integer.parseInt(right));
+            }
+            return String.valueOf(Integer.parseInt(left) * Float.parseFloat(right));
+        }
+        return String.valueOf(Float.parseFloat(left) * Float.parseFloat(right));
+    }
+    private String parseDiv(String left, String right) {
+        if (!left.contains(".")) {
+            if (!right.contains(".")) {
+                return String.valueOf(Integer.parseInt(left) / Integer.parseInt(right));
+            }
+            return String.valueOf(Integer.parseInt(left) / Float.parseFloat(right));
+        }
+        return String.valueOf(Float.parseFloat(left) / Float.parseFloat(right));
+    }
+
     /// 0 for addition, 1 for subtraction, 2 for multiplication, and 3 for division
     private void handleOperation(int op, int index) {
 
@@ -88,20 +125,25 @@ public final class HIRPass {
 
         // the first argument is temp var
         if (v0 >= 0) {
-            final String left = reg.get(v0).value;
-            final String right = reg.get(Integer.parseInt(other.toString())).value;
-            final String value = String.valueOf(
-                    switch (op) {
-                        case 0 -> Integer.parseInt(left) + Integer.parseInt(right);
-                        case 1 -> Integer.parseInt(left) - Integer.parseInt(right);
-                        case 2 -> Integer.parseInt(left) * Integer.parseInt(right);
-                        case 3 -> Integer.parseInt(left) / Integer.parseInt(right);
-                        default -> throw new Error("Unknown operator");
-                    }
-            );
+            final VarDesc leftArg = reg.get(v0);
+            final VarDesc rightArg = reg.get(Integer.parseInt(other.toString()));
+            String value = switch (op) {
+                case 0 -> parseAdd(leftArg.value, rightArg.value);
+                case 1 -> parseSub(leftArg.value, rightArg.value);
+                case 2 -> parseMul(leftArg.value, rightArg.value);
+                case 3 -> parseDiv(leftArg.value, rightArg.value);
+                default -> throw new Error("Unknown operator");
+            };
 
-            reg.put(index, new VarDesc(reg.get(v0).type, value));
-            sb.append(value).append('\n');
+
+            if (leftArg.type != rightArg.type && rightArg.type == BuiltinType.Float) {
+                value = value.substring(0, value.indexOf('.'));
+                sb.append(value).append('\n');
+
+            } else {
+                sb.append(value).append('\n');
+            }
+            reg.put(index, new VarDesc(leftArg.type, value));
         }
     }
 
@@ -154,6 +196,60 @@ public final class HIRPass {
                 handleOperation(3, index);
                 break;
             }
+
+            // integer
+            case 'i':
+                skipIdx(2);
+                if (chars[idx] == '-') {
+                    other.append(chars[idx++]);
+                }
+                if (isDigit(chars[idx])) {
+                    gatherIndex();
+                    reg.put(index, new VarDesc(BuiltinType.Integer, other.toString()));
+                    // float
+                    if (chars[idx] == '.') {
+                        gatherUntil('\n');
+                    }
+                } else {
+                    gatherUntil('\n');
+                    reg.put(index, new VarDesc(BuiltinType.Integer, var.get(other.toString()).value));
+                }
+
+                break;
+
+            // float
+            case 'f':
+                skipIdx(2);
+                if (chars[idx] == '-') {
+                    other.append(chars[idx++]);
+                }
+                if (chars[idx] == 't') {
+                    skipIdx(1);
+                    gatherUntil('\n');
+                    final int i = Integer.parseInt(other.toString());
+                    if (reg.get(i).type != BuiltinType.Float) {
+                        reg.put(index, new VarDesc(BuiltinType.Float, reg.get(i).value + ".0"));
+                    } else {
+                        reg.put(index, new VarDesc(BuiltinType.Float, reg.get(i).value));
+                    }
+                }
+                else if (isDigit(chars[idx])) {
+                    gatherIndex();
+                    // float
+                    if (chars[idx] == '\n') {
+                        reg.put(index, new VarDesc(BuiltinType.Float, other + ".0"));
+                    } else {
+                        gatherUntil('\n');
+                        reg.put(index, new VarDesc(BuiltinType.Float, other.toString()));
+                    }
+                } else {
+                    gatherUntil('\n');
+                    final String val = var.get(other.toString()).value;
+
+                    reg.put(index, new VarDesc(BuiltinType.Float, (!val.contains(".") ? val + ".0" : val)));
+                }
+
+                break;
         }
         skipIdx(1); // skip the newline
         reset(other);
@@ -163,6 +259,7 @@ public final class HIRPass {
         // skipping "t"
         skipIdx(1);
         gatherIndex();
+
 
         final int index = Integer.parseInt(other.toString());
 
@@ -185,14 +282,14 @@ public final class HIRPass {
         // skipping the varName
         gatherUntil(' ');
         other.append(chars[idx++]);
+        BuiltinType type = getType();
         other.append(chars[idx++]);
+
 
         final String st = other.toString();
 
-        // skipping the space between value type and value
-        skipIdx(1);
-
         reset(other);
+        skipIdx(1);
         // skip
         if (isDigit(chars[idx])) {
             gatherUntil('\n');
@@ -211,9 +308,24 @@ public final class HIRPass {
                 sb.append(st).append(' ').append('t').append(right).append('\n');
             } else {
                 sb.append(st).append(' ').append(reg.get(right).value).append('\n');
+
             }
             // skip the "store "
-            var.put(key, new VarDesc(reg.get(right).type, reg.get(right).value));
+            final VarDesc val = reg.get(right);
+            if (type != val.type) {
+                var.put(
+                        key,
+                        new VarDesc(
+                                type, (type == BuiltinType.Integer) ?
+                                val.value.substring(0, val.value.indexOf('.'))
+                                :
+                                val.value + ".0"
+                        )
+                );
+            } else {
+                var.put(key, new VarDesc(val.type, val.value));
+            }
+
         } else {
             gatherUntil('\n');
 
@@ -227,44 +339,55 @@ public final class HIRPass {
     }
 
     public String optimize() {
-        onePass();
-        IO.println("\n- first pass:");
-        IO.println(sb.toString());
-        chars = sb.toString().toCharArray();
-        sb = new StringBuilder();
+        Pass();
 
-        onePass();
-        IO.println("\n- second pass:");
+
         return sb.toString();
     }
 
-    private void onePass() {
+    private void Pass() {
         boolean hasImprovement = true;
-        idx = 0;
-        reg.clear();
+        int i = 1;
+        while (true) {
+            sb = new StringBuilder();
 
-        while (hasImprovement) {
-            hasImprovement = false;
+            while (hasImprovement) {
 
-            if (idx >= chars.length) break;
+                hasImprovement = false;
+                IO.println("- Pass " + i++ + ":");
+                IO.println(sb.toString());
 
-            if (chars[idx] == '\n') {
-                hasImprovement = true;
-                ++idx;
-                continue;
+                if (idx >= chars.length) break;
+
+                if (chars[idx] == '\n') {
+                    hasImprovement = true;
+                    ++idx;
+                    continue;
+                }
+                // temp var
+                if (chars[idx] == 't') {
+                    handleTempVar();
+                    hasImprovement = true;
+                }
+                // permanent var
+                if (chars[idx] == 's') {
+                    handleVar();
+                    hasImprovement = true;
+                }
+
+                afterOperation = false;
+
             }
-            // temp var
-            if (chars[idx] == 't') {
-                handleTempVar();
-                hasImprovement = true;
-            }
-            // permanent var
-            if (chars[idx] == 's') {
-                handleVar();
-                hasImprovement = true;
-            }
+            if (sb.toString().isEmpty()) {
+                IO.println("None left.");
+                break;
+            } else {
+                chars = sb.toString().toCharArray();
 
-            afterOperation = false;
+                hasImprovement = true;
+                idx = 0;
+                reg.clear();
+            }
         }
     }
 

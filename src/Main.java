@@ -13,7 +13,7 @@ void main() {
 //    for (int i = 0; i < 1_000_000; ++i) {
 //        sb.append("let a").append(i).append(" = ").append(i).append(';');
 //    }
-    Lexer lexer = new Lexer("let a: int = 12 - 2; let b = a + 3 * a;");
+    Lexer lexer = new Lexer("let a = 10 + 2;");
 
     long t0 = System.nanoTime();
 
@@ -29,6 +29,7 @@ void main() {
     IO.println(s);
 
     LIRGen lirGenerator = new LIRGen(hirPass.var);
+    IO.println("- LIR:");
     IO.println(lirGenerator.generate());
     long t1 = System.nanoTime();
 

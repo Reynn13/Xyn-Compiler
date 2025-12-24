@@ -1,5 +1,6 @@
 package HIRs;
 
+import LIRs.VarDesc;
 import builtins.BuiltinType;
 import errors.ErrorEngine;
 import parser.Ast.AstNode;
@@ -31,6 +32,7 @@ public final class HIRGen {
     }
 
     private final HashMap<Integer, BuiltinType> reg = new HashMap<>(3);
+    private final HashMap<String, BuiltinType> vars = new HashMap<>(3);
 
     private boolean isLeftOrRightInteger(BuiltinType leftType, BuiltinType rightType) {
         return (leftType == BuiltinType.Integer && rightType == BuiltinType.Float)
@@ -82,10 +84,15 @@ public final class HIRGen {
             evalExpr(u.expr);
             return;
         }
-         if (value instanceof Expr e) {
+        if (value instanceof Expr e) {
             reg.put(counter, e.type);
             // example: t0 = const 12
-            sb.append('t').append(counter++).append(" = const i ").append(source, value.startIdx, value.endIdx).append('\n');
+            final String s = source.substring(value.startIdx, value.endIdx);
+            if (e.type == BuiltinType.VarRef) {
+                sb.append('t').append(counter++).append(" = const ").append(byType(vars.get(s))).append(' ').append(s).append('\n');
+            } else {
+                sb.append('t').append(counter++).append(" = const i ").append(s).append('\n');
+            }
             return;
         }
         throw new Error("Unknown value type");
@@ -97,13 +104,13 @@ public final class HIRGen {
 
     private BuiltinType handleVarTypeNotTyped(BuiltinType type, int regIdx) {
         sb.append('t').append(counter++).append(" = ").append(
-                switch (reg.get(regIdx)) {
+                switch (type) {
                     case Integer -> "i";
                     case Float -> "f";
                     default ->  throw new Error("WTH");
                 }
         ).append(" t").append(regIdx).append('\n');
-        return reg.get(regIdx);
+        return type;
     }
 
     private char byType(BuiltinType t) {
@@ -125,6 +132,7 @@ public final class HIRGen {
             type = handleVarTypeNotTyped(var.varType, v);
         }
         sb.append("store ").append(source, var.startIdx, var.endIdx).append(' ').append(byType(type)).append(" t").append(counter-1).append('\n');
+        vars.put(source.substring(var.startIdx, var.endIdx), type);
     }
 
     public String generate() {
@@ -138,7 +146,7 @@ public final class HIRGen {
                     break;
             }
         }
-        IO.println("\n- zero pass:\n" + sb);
+        IO.println("\n- Pass 0:\n" + sb);
         return sb.toString();
     }
 }
