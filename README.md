@@ -28,16 +28,24 @@ Xyn compiler.
 ## Variables
 
 ### Sections:
-- [Basic Types in Xyn](#basic-types)
+- [Types in Xyn](#basic-types)
 - [Example 0](#example-0)
 - [Nullability](#nullability)
 - [Static or Dynamic?](#static--dynamic-variable-in-xyn)
   
-### Basic Types
+### Types
 
-#### There are **5 built-in basic types** in Xyn.
-- The **five basic types** in Xyn are **str** (string), **int** (integer), **float** (decimal numbers), **char** (character), and **bool** (boolean).\
-  Every types on **default** are not **nullable**, so you can't assign it with null value.
+- **There are so many types in Xyn that can you use, from built-ins, libraries, and user-defined types.**\
+  They have their own **functionality and cost**, so it's a good thing to use **different types** for **different situations**.
+
+#### There are **three categories** about **how types in Xyn** can **splits into**.
+|          Categories         |                      Types                    |                  Description                |
+|            :---:            |                      :---:                    |                     :--:                    |
+|        **Primitive**        |     `int`, `float`, `char`, `str`, `bool`     |         basic types with fixed size         |
+|       **Collections**       |        `List<T>`, `Map<K, V>`, `Set<E>`       |  type-safe data structure with dynamic size |
+|      **User-defined**       |      `PersonClass`, `Player`, `Inventory`     |
+
+
 
 ### Example 0:
 ```rs
