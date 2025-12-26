@@ -28,7 +28,7 @@ Xyn compiler.
 ## Variables
 
 ### Sections:
-- [Types in Xyn](#basic-types)
+- [Types in Xyn](#types)
 - [Example 0](#example-0)
 - [Nullability](#nullability)
 - [Static or Dynamic?](#static--dynamic-variable-in-xyn)
@@ -43,7 +43,7 @@ Xyn compiler.
 |            :---:            |                      :---:                    |                     :--:                    |
 |        **Primitive**        |     `int`, `float`, `char`, `str`, `bool`     |         basic types with fixed size         |
 |       **Collections**       |        `List<T>`, `Map<K, V>`, `Set<E>`       |  type-safe data structure with dynamic size |
-|      **User-defined**       |      `PersonClass`, `Player`, `Inventory`     |
+|      **User-defined**       |      `PersonClass`, `Player`, `Inventory`     |    flexible data structure stored in heap   |
 
 
 
