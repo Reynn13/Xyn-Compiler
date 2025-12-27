@@ -292,7 +292,7 @@ carefully designed pipeline**:
 
 #### Feature:
 **[for version 0.05]**
-- **Dynamic Variable**.
+- **Dynamic Variable**. [ ]
 - **Simple control flow statement** (e.g., if and else statement). [ ]
 
 #### Technical:
@@ -304,8 +304,18 @@ carefully designed pipeline**:
 - **Make a LIR (Low IR) Generator that generate VM-ready instruction from the HIR**. [X]
 
 **[for version 0.04]**
-- **Make a LIR storer that will store the LIR code into a .xir file** [ ]
-- **Make a VM that used the LIR and execute it**. [ ]
+- **Make a LIR storer that will store the LIR code into a .xir file** [X]
+- **Make a VM that used the LIR and execute it**. [X]
+
+**[for version 0.045]**
+- **Cleaner code**. [ ]
+- **Modular code**. [ ]
+- **Faster runtime**. [ ]
+- **Making comments to some parts of the code, so it can be more readable**. [ ]
+- **review all of it, and planning for the next feature**. [ ]
+
+**[for version 0.046]**
+- **revise and rewrite the README file**. [ ]
 ---
 
 ## Inspirations & References
